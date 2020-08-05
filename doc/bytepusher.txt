@@ -1,0 +1,149 @@
+Local copy of esolang VM documentation
+
+BytePusher is a minimalist virtual machine invented by [[user:Javamannen]] in 2010. You can think of it as a simplified [[wikipedia:CHIP-8|CHIP-8]] with bigger memory, bigger screen with colors, and sampled sound. BytePusher has a [[ByteByteJump]] one-instruction CPU. The barebones hardware abstraction layer provides only memory-mapped pixel and audiosample buffers, keystates and a fixed framerate. All higher-level stuff (text, sprites, tiles, scrolling, sound synthesis etc.) will have to be done in software.
+
+===Features===
+
+BytePusher is:
+* '''Simple:''' BytePusher takes minimalism to the extreme. A complete VM including graphics and sound can be written in less than 100 lines of C code.
+* '''Cross-platform:''' BytePusher's simple structure makes it very easy to write a VM for any OS (or even without an OS). It would also be simple to implement in actual hardware. All programs run cycle-identical and bit-identical across all platforms.
+* '''Persistent:''' The complete machine state can be saved to a file, and later be reproduced exactly.
+* '''Fixed-size:''' BytePusher's memory size, screen resolution and keyboard layout are fixed.
+* '''Fixed-speed:''' BytePusher is specified as a realtime system with fixed framerate, CPU speed and audio rate. It executes a fixed number of instructions per frame, which means that a BytePusher program can't "hog" the host CPU.
+* '''100% sandboxed''': A BytePusher VM has its own fixed-size "sandbox" memory, which it can never read or write outside of.
+
+===Intended uses===
+
+* '''Games:''' BytePusher is well suited for implementation of 2D games.
+* '''Demos:''' BytePusher could serve as an "old-school" platform for the [[wikipedia:Demoscene|demoscene]].
+* '''Education:''' Its simplicity and directness makes BytePusher an excellent tool for learning and experimentation.
+
+===Specifications===
+
+{|
+|-
+| '''Framerate:'''
+| 60 frames per second
+|-
+| '''CPU:'''
+| ByteByteJump with 3-byte addresses
+|-
+| '''CPU speed:'''
+| 65536 instructions per frame (3932160 instructions per second, ~3.93 MHz).
+|-
+| '''Byte ordering:'''
+| Big-endian
+|-
+| '''Memory:'''
+| 16 [[wikipedia:Mebibyte|MiB]] RAM
+|-
+| '''Graphics:'''
+| 256*256 pixels, 1 byte per pixel, 216 fixed colors
+|-
+| '''Sound:'''
+| 8-bit mono, signed values. 256 samples per frame (15360 samples per second)
+|-
+| '''Keyboard:'''
+| 16 keys, organized into 4 rows by 4 columns
+|}
+
+===Colors===
+
+Each pixel takes up 1 byte. This would theoretically allow for a maximum of 256 different colors, but BytePusher's fixed palette uses only the first 216 of these. Indices 216..255 are unused; they are set to black (#000000).
+
+The 216 colors are organized into a 6*6*6 color cube (a.k.a the "websafe" palette). Each of the red, green and blue components can have an intensity value from 0 to 5. The formula to calculate a pixel's color value is: Red*36 + Green*6 + Blue. If the actual display device has 8-bit (00h-FFh) color components, we have to multiply each intensity value by 33h when blitting to the screen:
+  0  1  2  3  4  5
+ 00 33 66 99 CC FF
+
+===Keyboard layout===
+
+BytePusher's hex keyboard has the same layout as that of CHIP-8:
+
+{| class="wikitable"
+|-
+| 1
+| 2
+| 3
+| C
+|-
+| 4
+| 5
+| 6
+| D
+|-
+| 7
+| 8
+| 9
+| E
+|-
+| A
+| 0
+| B
+| F
+|}
+
+===Memory map===
+
+The memory-mapped I/O area of BytePusher consists of 8 (!) bytes at the start of memory. Multibyte values are stored with big-endian byte ordering.
+
+{| class="wikitable"
+|-
+! Address
+! Bytes
+! Description
+|-
+| 0
+| 2
+| Keyboard state. Key X = bit X.
+|-
+| 2
+| 3
+| The program counter is fetched from this address at the beginning of each frame.
+|-
+| 5
+| 1
+| A value of ZZ means: pixel(XX, YY) is at address ZZYYXX.
+|-
+| 6
+| 2
+| A value of XXYY means: audio sample ZZ is at address XXYYZZ.
+|}
+
+===Outer loop===
+
+# Wait for the next timer tick (60 ticks are generated per second).
+# Poll the keys and store their states as a 2-byte value at address 0.
+# Fetch the 3-byte program counter from address 2, and execute exactly 65536 instructions.
+# Send the 64-[[wikipedia:Kibibyte|KiB]] pixeldata block designated by the byte value at address 5 to the display device. Send the 256-byte sampledata block designated by the 2-byte value at address 6 to the audio device.
+# Go back to step 1.
+
+A program ''must'' be finished with all its calculations for a frame before the next periodic reset of the program counter occurs. In essence this makes BytePusher a hard realtime system. When a program has finished its work for one frame, it should simply wait in a loop for the next reset. A loop counter can be used to measure CPU utilization.
+
+===Inner loop===
+
+An instruction consists of 3 big-endian 24-bit addresses ''A,B,C'' stored consecutively in memory. The operation performed is: Copy 1 byte from ''A'' to ''B'', then jump to ''C''.
+
+An instruction should be able to modify its own jump address before jumping. Thus the copy operation must be completed before the jump address is read.
+
+Since the three address operands are limited to 24 bits,
+* We can never ''copy'' to/from an address past FFFFFFh, and
+* We can never ''jump'' to an instruction ''starting at'' an address greater than FFFFFFh.
+However, since each instruction takes up exactly 9 bytes, jumping to an address &ge; FFFFF8h results in the CPU attempting to read past address FFFFFFh. In the worst case (if the instruction starts at FFFFFFh) the CPU will try to read 8 extra bytes. The way we deal with this is to simply add 8 extra padding bytes beyond FFFFFFh, all initialized to 0. A buggy application can then "crash" ''within the sandbox'', without affecting the VM or the host machine in any way.
+
+Here's an implementation in C of the inner loop:
+
+ unsigned char mem[0x1000008], *pc;
+ ...
+ pc = mem + (mem[2]<<16 | mem[3]<<8 | mem[4]);
+ int i = 65536;
+ do {
+   mem[pc[3]<<16 | pc[4]<<8 | pc[5]] =
+   mem[pc[0]<<16 | pc[1]<<8 | pc[2]];
+   pc = mem + (pc[6]<<16 | pc[7]<<8 | pc[8]);
+ } while (--i);
+
+Since we read each address one byte at a time, this code works on both big-endian and little-endian host machines.
+
+===Persistence===
+
+A snapshot of the memory contents of a running BytePusher machine can be saved to a file. To ensure a consistent state, this must only be done in between frames (i.e. not while the inner loop is running). A saved snapshot file can later be loaded into RAM to recreate the exact same machine state.
