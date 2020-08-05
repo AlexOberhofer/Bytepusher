@@ -74,6 +74,8 @@ int main(int argc, char* argv[])
         v_blit(screen, ram);
         s_sleep();
     }
+    
+    v_fin();
 }
 
 #endif

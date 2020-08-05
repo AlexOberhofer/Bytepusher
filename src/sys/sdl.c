@@ -55,6 +55,7 @@ void v_blit(pixel_t screen[][256], uint8_t ram[])
     }
 
     SDL_UpdateTexture(texture, NULL, screen, 256 * sizeof(uint32_t));
+    SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
 
@@ -64,6 +65,10 @@ void v_blit(pixel_t screen[][256], uint8_t ram[])
 void v_fin()
 {
     printf("Start v_fin()\n");
+
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
 
     printf("End v_fin()\n");    
 }
