@@ -7,11 +7,17 @@
 #ifndef _SYSH_
 #define _SYSH_
 
+typedef struct pixel {
+    uint8_t a; 
+    uint8_t r; 
+    uint8_t g; 
+    uint8_t b; 
+} pixel_t;
 
 /* VIDEO */
 void v_init();
 
-void v_blit();
+void v_blit(pixel_t screen[][256], uint8_t ram[]);
 
 void v_fin();
 
@@ -23,5 +29,7 @@ void a_poll();
 void a_fin();
 
 /* IO */
+
+void e_poll();
 
 #endif
