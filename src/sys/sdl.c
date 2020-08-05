@@ -29,6 +29,14 @@ typedef struct pixel {
     uint8_t b; 
 } pixel_t;
 
+
+/* Sleep */
+void s_sleep() 
+{
+    SDL_Delay(4);
+}
+
+/* Initialize video subsystem */
 void v_init()
 {
     if(SYSTRACE) printf("Start v_init()\n");
@@ -47,6 +55,7 @@ void v_init()
     if(SYSTRACE) printf("End v_init()\n");
 }
 
+/* Draw texture data to screen */
 void v_blit(pixel_t screen[][256], uint8_t ram[])
 {
     if(SYSTRACE) printf("Start v_blit()\n");
@@ -74,6 +83,7 @@ void v_blit(pixel_t screen[][256], uint8_t ram[])
     if(SYSTRACE) printf("End v_blit()\n");  
 }
 
+/* cleanup */
 void v_fin()
 {
     if(SYSTRACE) printf("Start v_fin()\n");
@@ -85,6 +95,7 @@ void v_fin()
     if(SYSTRACE) printf("End v_fin()\n");    
 }
 
+/* Input polling */
 void e_poll(uint8_t ram[]) 
 {
     SDL_Event e;
@@ -110,10 +121,4 @@ void e_poll(uint8_t ram[])
 	ram[0] = inputdata >> 8;
 	ram[1] = inputdata & 0xFF;
 }
-
-void s_sleep() 
-{
-    SDL_Delay(4);
-}
-
 #endif
