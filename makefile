@@ -2,7 +2,7 @@ CC=gcc
 CLAGS=-I. -I./include -std=c89 -Wall 
 DEPS=sys.h
 
-ENGINEOBJS=./src/engine/bytepusher.c
+ENGINEOBJS=./src/engine/bytepusher.o
 SYSOBJS=./src/sys/sdl.c
 
 

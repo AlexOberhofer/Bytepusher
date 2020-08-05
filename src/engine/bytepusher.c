@@ -66,13 +66,13 @@ int main(int argc, char* argv[])
     /*load program into system memory*/
     FILE *fp = fopen(argv[1], "rb");
     load(fp);
-    
-    printf("Success :)\n");
 
+    /* Never Return  */
     for(;;){
         e_poll();
         step();
         v_blit(screen, ram);
+        s_sleep();
     }
 }
 

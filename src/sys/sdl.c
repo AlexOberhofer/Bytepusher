@@ -57,7 +57,6 @@ void v_blit(pixel_t screen[][256], uint8_t ram[])
     SDL_UpdateTexture(texture, NULL, screen, 256 * sizeof(uint32_t));
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
-    SDL_Delay(1000);
 
     printf("End v_blit()\n");  
 }
@@ -69,7 +68,8 @@ void v_fin()
     printf("End v_fin()\n");    
 }
 
-void e_poll() {
+void e_poll() 
+{
     SDL_Event e;
     while(SDL_PollEvent(&e)) 
     {
@@ -79,6 +79,11 @@ void e_poll() {
                 exit(1);
             }
         }
+}
+
+void s_sleep() 
+{
+    SDL_Delay(1000);
 }
 
 #endif

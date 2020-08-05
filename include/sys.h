@@ -32,4 +32,7 @@ void a_fin();
 
 void e_poll();
 
+/* zzz... */
+void s_sleep();
+
 #endif
