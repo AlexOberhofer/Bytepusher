@@ -1,6 +1,11 @@
+/****************************************************************************** 
+* 
+* System interface for porting 
+* (C) 2020 Alex Oberhofer
+*
+******************************************************************************/
 #ifndef _SYSH_
 #define _SYSH_
-/* System interface for porting */
 
 
 /* VIDEO */

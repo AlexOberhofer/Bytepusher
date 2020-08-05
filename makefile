@@ -1,4 +1,4 @@
-cc=gcc
+CC=gcc
 CLAGS=-I. -I./include -std=c89 -Wall 
 DEPS=sys.h
 
@@ -11,7 +11,7 @@ SYSOBJS=./src/sys/sdl.c
 	$(CC) -I./include/ -c $< -o $@ $(CFLAGS)
 
 bp: $(ENGINEOBJS) $(SYSOJBS)
-	$(CC) $(CFLAGS) -o bp $(ENGINEOBJS) $(SYSOBJS)
+	$(CC) $(CFLAGS) -o bp $(ENGINEOBJS) $(SYSOBJS) -lSDL2
 
 clean:
 	rm bp

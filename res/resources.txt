@@ -1,0 +1,8 @@
+All Bytepusher programs listed in this directory are open source unless otherwise stated.
+
+More info can be found here: https://esolangs.org/wiki/BytePusher
+
+Credits:
+
+Javamannen - Bytepusher VM design and the following bytepusher programs: 
+- 
