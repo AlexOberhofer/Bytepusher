@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 
     /* Never Return  */
     for(;;){
-        e_poll();
+        e_poll(ram);
         step();
         v_blit(screen, ram);
         s_sleep();
