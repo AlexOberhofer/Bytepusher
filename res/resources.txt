@@ -5,4 +5,9 @@ More info can be found here: https://esolangs.org/wiki/BytePusher
 Credits:
 
 Javamannen - Bytepusher VM design and the following bytepusher programs: 
-- 
+- audio-test.bp
+- key-test.bp
+- logo-scroll.bp
+- pal-test.bp
+- sine-scroll.bp
+- sprites.bp
