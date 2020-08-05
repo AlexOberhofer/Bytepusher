@@ -59,8 +59,17 @@ void step() {
     }
 }
 
+void usage() {
+    printf("BytePusher by Alex Oberhofer\n");
+    printf("Usage:\n");
+    printf("$ bp <path to program>\n");
+    exit(1);
+}
+
 int main(int argc, char* argv[]) 
 {
+    if(argc == 1) usage();
+
     v_init();
 
     /*load program into system memory*/
