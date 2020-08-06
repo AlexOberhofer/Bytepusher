@@ -113,9 +113,16 @@ int e_poll(uint8_t ram[])
             case SDL_QUIT: return 0;
             default:
             for (i = 0; i < sizeof(keymap)/sizeof(*keymap); i++)
-			    if (e.key.keysym.sym == keymap[i])
-				    inputdata = (inputdata & ~(1 << i)) | (e.type == SDL_KEYDOWN)<<i;
-                break;
+            {
+                if (e.key.keysym.sym == keymap[i])
+                {
+                    inputdata = (inputdata & ~(1 << i)) | (e.type == SDL_KEYDOWN)<<i;
+                } else if (e.key.keysym.sym == SDLK_ESCAPE) 
+                {
+                    return 0;
+                }
+            }
+			break;
         }
 
 	}
