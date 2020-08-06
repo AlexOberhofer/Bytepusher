@@ -18,8 +18,8 @@
 #define D_DIMENSION 256
 #define W_SCALE 1
 
-pixel_t screen[D_DIMENSION][D_DIMENSION];
-uint8_t ram[MEM_SIZE];
+pixel_t screen[D_DIMENSION][D_DIMENSION]; /* Video Buffer */
+uint8_t ram[MEM_SIZE]; /* System memory */
 uint32_t pc = 0;
 
 /* Load file into system memory */
@@ -50,8 +50,8 @@ void step() {
     pc = ram[2] << 16 | ram[3] << 8 | ram[4];
 
     for (i = 0; i < CYCLES_PER_FRAME; i++) {
-        int A = ram[pc]     << 16 | ram[pc + 1] << 8 | ram[pc + 2];
-        int B = ram[pc + 3] << 16 | ram[pc + 4] << 8 | ram[pc + 5];
+        uint32_t A = ram[pc]     << 16 | ram[pc + 1] << 8 | ram[pc + 2];
+        uint32_t B = ram[pc + 3] << 16 | ram[pc + 4] << 8 | ram[pc + 5];
 
         ram[B] = ram[A];
 
@@ -59,11 +59,19 @@ void step() {
     }
 }
 
-void usage() {
+void usage() 
+{
     printf("BytePusher by Alex Oberhofer\n");
     printf("Usage:\n");
     printf("$ bp <path to program>\n");
     exit(1);
+}
+
+void shutdown()
+{
+    v_fin(); 
+    free(screen);
+    free(ram);
 }
 
 int main(int argc, char* argv[]) 
@@ -84,7 +92,8 @@ int main(int argc, char* argv[])
         s_sleep();
     }
     
-    v_fin();
+    shutdown();
+
 }
 
 #endif

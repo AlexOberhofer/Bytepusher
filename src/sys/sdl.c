@@ -11,6 +11,7 @@
 #include <SDL2/SDL.h>
 
 #define SYSTRACE 0
+#define FB_XY 256 /* Dimenson of our square framebuffer */
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
@@ -47,23 +48,23 @@ void v_init()
         exit(1);
     } else 
     {
-        window = SDL_CreateWindow("Bytepusher", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 256 , 256, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP);
+        window = SDL_CreateWindow("Bytepusher", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, FB_XY , FB_XY, SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB32, SDL_TEXTUREACCESS_STREAMING, 256, 256);
+        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB32, SDL_TEXTUREACCESS_STREAMING, FB_XY, FB_XY);
     }
 
     if(SYSTRACE) printf("End v_init()\n");
 }
 
 /* Draw texture data to screen */
-void v_blit(pixel_t screen[][256], uint8_t ram[])
+void v_blit(pixel_t screen[][FB_XY], uint8_t ram[])
 {
     if(SYSTRACE) printf("Start v_blit()\n");
 
     int x, y;
-    for (x = 0; x < 256; x++) 
+    for (x = 0; x < FB_XY; x++) 
     {
-        for (y = 0; y < 256; y++) 
+        for (y = 0; y < FB_XY; y++) 
         {
             uint8_t pixel = ram[(ram[5] << 16) | (y << 8) | x];
             screen[y][x].b = (pixel % 6) * 0x33;
@@ -75,7 +76,7 @@ void v_blit(pixel_t screen[][256], uint8_t ram[])
         }
     }
 
-    SDL_UpdateTexture(texture, NULL, screen, 256 * sizeof(uint32_t));
+    SDL_UpdateTexture(texture, NULL, screen, FB_XY * sizeof(uint32_t));
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
