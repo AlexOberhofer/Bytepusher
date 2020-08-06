@@ -70,8 +70,6 @@ void usage()
 void shutdown()
 {
     v_fin(); 
-    free(screen);
-    free(ram);
 }
 
 int main(int argc, char* argv[]) 
@@ -85,8 +83,8 @@ int main(int argc, char* argv[])
     load(fp);
 
     /* Never Return  */
-    for(;;){
-        e_poll(ram);
+    while(e_poll(ram))
+    {       
         step();
         v_blit(screen, ram);
         s_sleep();

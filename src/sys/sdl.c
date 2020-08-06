@@ -97,7 +97,7 @@ void v_fin()
 }
 
 /* Input polling */
-void e_poll(uint8_t ram[]) 
+int e_poll(uint8_t ram[]) 
 {
     SDL_Event e;
     uint16_t inputdata;
@@ -110,7 +110,7 @@ void e_poll(uint8_t ram[])
     {
 		switch(e.type) 
         {
-            case SDL_QUIT: exit(0);
+            case SDL_QUIT: return 0;
             default:
             for (i = 0; i < sizeof(keymap)/sizeof(*keymap); i++)
 			    if (e.key.keysym.sym == keymap[i])
@@ -121,5 +121,6 @@ void e_poll(uint8_t ram[])
 	}
 	ram[0] = inputdata >> 8;
 	ram[1] = inputdata & 0xFF;
+    return 1;
 }
 #endif

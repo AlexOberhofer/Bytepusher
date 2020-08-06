@@ -30,7 +30,7 @@ void a_fin();
 
 /* IO */
 
-void e_poll(uint8_t ram[]);
+int e_poll(uint8_t ram[]);
 
 /* zzz... */
 void s_sleep();
